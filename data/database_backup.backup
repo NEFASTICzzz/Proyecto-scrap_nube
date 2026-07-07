@@ -1,0 +1,9 @@
+# RESPALDO BINARIO DE LA BASE DE DATOS (MOCK PG_DUMP FORMAT)
+# Para generar un backup real binario de PostgreSQL en caliente una vez poblada la base de datos:
+# pg_dump -h localhost -p 5432 -U postgres -F c -b -v -f data/database_backup.backup scraping_db
+#
+# Para restaurar este archivo de respaldo:
+# pg_restore -h localhost -p 5432 -U postgres -d scraping_db -v data/database_backup.backup
+#
+# Nota: Como alternativa de restauración instantánea y multiplataforma, se incluye el script SQL completo
+# auto-ejecutable pre-llenado en: data/database_filled_backup.sql
