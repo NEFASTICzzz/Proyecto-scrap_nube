@@ -1,0 +1,34 @@
+# Entornos Virtuales
+venv/
+.venv/
+env/
+.env
+
+# Caché de Python
+**/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+
+# Archivos de Datos Locales y Caché
+logs/
+data/results.json
+data/files.json
+data/events.json
+data/selectors_cache.json
+
+# Scripts de Consola y Herramientas Locales del Desarrollador
+*.ps1
+*.bat
+*.cmd
+*.sh
+
+# IDE y Editores de Código
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
