@@ -1,0 +1,2 @@
+Contenido original del documento mock numero 2.
+HASH inicial estable.
