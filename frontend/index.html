@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard de Scraping & Selectores LLM - UTN</title>
+    <!-- Google Fonts: Outfit -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Bootstrap 5 CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+    <!-- FullCalendar 6 CSS -->
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i class="fa-solid fa-cloud-bolt text-primary me-2"></i>
+                    <span>UTN Cloud Scraping</span>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li class="nav-item active" data-target="dashboard-section">
+                        <i class="fa-solid fa-chart-line"></i><span>Panel Principal</span>
+                    </li>
+                    <li class="nav-item" data-target="products-section">
+                        <i class="fa-solid fa-database"></i><span>Datos Estructurados</span>
+                    </li>
+                    <li class="nav-item" data-target="files-section">
+                        <i class="fa-solid fa-file-shield"></i><span>Gestión de Archivos</span>
+                    </li>
+                    <li class="nav-item" data-target="calendar-section">
+                        <i class="fa-solid fa-calendar-days"></i><span>Calendario de Eventos</span>
+                    </li>
+                    <li class="nav-item" data-target="llm-section">
+                        <i class="fa-solid fa-microchip"></i><span>Generador de Selectores</span>
+                    </li>
+                </ul>
+            </nav>
+            <div class="sidebar-footer">
+                <p>Ciclo: II-2026</p>
+                <p>Profesor: Andrés J.</p>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="top-bar">
+                <div class="user-greeting">
+                    <h1>Plataforma de Scraping & Selectores LLM</h1>
+                    <p class="text-muted">Monitoreo de tareas automatizadas y detección de cambios</p>
+                </div>
+                <div class="quick-actions">
+                    <button class="btn btn-premium btn-icon-only me-2" onclick="refreshAll()" title="Sincronizar Datos">
+                        <i class="fa-solid fa-rotate"></i>
+                    </button>
+                    <a href="/mock/dynamic" target="_blank" class="btn btn-outline-secondary me-2">
+                        <i class="fa-solid fa-laptop-code me-1"></i> Ver Sitio Dinámico
+                    </a>
+                    <a href="/mock/static" target="_blank" class="btn btn-outline-secondary">
+                        <i class="fa-solid fa-file-lines me-1"></i> Ver Sitio Estático
+                    </a>
+                </div>
+            </header>
+
+            <!-- Dashboard Overview Section -->
+            <section id="dashboard-section" class="content-section active">
+                <div class="row g-4 mb-4">
+                    <div class="col-md-4">
+                        <div class="metric-card bg-gradient-purple">
+                            <div class="metric-icon"><i class="fa-solid fa-boxes-packing"></i></div>
+                            <div class="metric-info">
+                                <h3>Total Productos</h3>
+                                <p class="metric-value" id="count-products">-</p>
+                                <span class="metric-subtitle">Almacenados en PostgreSQL</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="metric-card bg-gradient-blue">
+                            <div class="metric-icon"><i class="fa-solid fa-file-arrow-down"></i></div>
+                            <div class="metric-info">
+                                <h3>Archivos Descargados</h3>
+                                <p class="metric-value" id="count-files">-</p>
+                                <span class="metric-subtitle">SHA-256 Monitoreados</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="metric-card bg-gradient-orange">
+                            <div class="metric-icon"><i class="fa-solid fa-bell"></i></div>
+                            <div class="metric-info">
+                                <h3>Alertas / Cambios</h3>
+                                <p class="metric-value" id="count-events">-</p>
+                                <span class="metric-subtitle">Eventos del Scheduler</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity & System Logs -->
+                <div class="row g-4">
+                    <div class="col-lg-8">
+                        <div class="custom-card">
+                            <div class="card-header-custom">
+                                <h3>Historial Reciente de Alertas</h3>
+                                <span class="badge bg-secondary">Detección en tiempo real</span>
+                            </div>
+                            <div class="card-body-custom scrollable-table">
+                                <table class="table custom-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Tipo</th>
+                                            <th>Evento</th>
+                                            <th>Detalles</th>
+                                            <th>Hora</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="recent-events-tbody">
+                                        <tr><td colspan="4" class="text-center text-muted">Cargando eventos...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="custom-card flex-column-layout">
+                            <div class="card-header-custom">
+                                <h3>Estado del Scheduler</h3>
+                            </div>
+                            <div class="card-body-custom status-panel">
+                                <div class="status-indicator online">
+                                    <span class="pulse-ring"></span>
+                                    <span class="status-dot"></span>
+                                    <strong>Worker ACTIVO</strong>
+                                </div>
+                                <div class="scheduler-info mt-3">
+                                    <p><i class="fa-solid fa-clock me-2"></i> Intervalo: <strong>30 minutos</strong></p>
+                                    <p><i class="fa-solid fa-database me-2"></i> Base de Datos: <strong class="text-success">Conectada (PostgreSQL)</strong></p>
+                                    <p><i class="fa-solid fa-brain me-2"></i> Inteligencia Artificial: <strong class="text-primary">Azure OpenAI</strong></p>
+                                </div>
+                                <hr>
+                                <h5>Acción Rápida</h5>
+                                <p class="text-muted small">Haz clic para cambiar la estructura del sitio dinámico y ver cómo la IA adapta los selectores.</p>
+                                <div class="d-grid gap-2">
+                                    <a href="/mock/dynamic?class_type=changed" target="_blank" class="btn btn-warning btn-sm">
+                                        <i class="fa-solid fa-triangle-exclamation me-1"></i> Romper Selectores (Simulación)
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Products List Section -->
+            <section id="products-section" class="content-section">
+                <div class="custom-card">
+                    <div class="card-header-custom">
+                        <h3>Datos Estructurados (Scraped Products)</h3>
+                        <div class="card-actions">
+                            <input type="text" id="search-products" class="form-control form-control-sm search-bar" placeholder="Buscar producto...">
+                        </div>
+                    </div>
+                    <div class="card-body-custom">
+                        <table class="table custom-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nombre del Producto</th>
+                                    <th>Precio</th>
+                                    <th>URL Fuente</th>
+                                    <th>Último Escaneo</th>
+                                </tr>
+                            </thead>
+                            <tbody id="products-tbody">
+                                <tr><td colspan="5" class="text-center text-muted">Cargando productos...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Files Management Section -->
+            <section id="files-section" class="content-section">
+                <div class="custom-card">
+                    <div class="card-header-custom">
+                        <h3>Gestión de Archivos Descargados</h3>
+                        <span class="badge bg-primary">Seguimiento de SHA-256</span>
+                    </div>
+                    <div class="card-body-custom">
+                        <table class="table custom-table">
+                            <thead>
+                                <tr>
+                                    <th>Archivo</th>
+                                    <th>Tamaño</th>
+                                    <th>Fecha de Descarga</th>
+                                    <th>SHA-256 Hash</th>
+                                    <th>Estado de Integridad</th>
+                                </tr>
+                            </thead>
+                            <tbody id="files-tbody">
+                                <tr><td colspan="5" class="text-center text-muted">Cargando archivos...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Calendar Section -->
+            <section id="calendar-section" class="content-section">
+                <div class="custom-card">
+                    <div class="card-header-custom mb-3">
+                        <h3>Calendario de Eventos del Scheduler</h3>
+                        <p class="text-muted mb-0">Visualización temporal de inserciones y modificaciones de datos</p>
+                    </div>
+                    <div class="card-body-custom">
+                        <div id="calendar-wrapper"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- LLM Selector Tester Section -->
+            <section id="llm-section" class="content-section">
+                <div class="row g-4">
+                    <div class="col-lg-6">
+                        <div class="custom-card">
+                            <div class="card-header-custom">
+                                <h3>Generación de Selectores por IA</h3>
+                            </div>
+                            <div class="card-body-custom">
+                                <p class="text-muted">Prueba en tiempo real cómo Azure OpenAI procesa un fragmento de código HTML y deduce el selector CSS ideal.</p>
+                                <div class="mb-3">
+                                    <label for="llm-html" class="form-label">Código HTML de Entrada</label>
+                                    <textarea id="llm-html" class="form-control code-input" rows="8" placeholder='Ejemplo: <div class="item"><h2 class="title-class">Zapatos Deportivos</h2><span class="price-val">$50</span></div>'></textarea>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="llm-description" class="form-label">Descripción del elemento a extraer</label>
+                                    <input type="text" id="llm-description" class="form-control" placeholder="Ej: el precio del zapato o el título">
+                                </div>
+                                <button class="btn btn-premium w-100" id="btn-generate-selector" onclick="testLlmSelector()">
+                                    <i class="fa-solid fa-wand-magic-sparkles me-2"></i> Generar Selector CSS
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="custom-card flex-column-layout">
+                            <div class="card-header-custom">
+                                <h3>Resultado del Modelo (Azure OpenAI)</h3>
+                            </div>
+                            <div class="card-body-custom result-panel">
+                                <div id="llm-result-waiting" class="text-center py-5 d-none">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Procesando...</span>
+                                    </div>
+                                    <p class="mt-2 text-muted">Azure OpenAI está procesando el DOM...</p>
+                                </div>
+                                <div id="llm-result-container" class="result-box">
+                                    <p class="text-muted">Introduce datos y haz clic en generar.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Bootstrap Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Modularized JavaScript -->
+    <script src="results.js"></script>
+    <script src="files.js"></script>
+    <script src="calendar.js"></script>
+    <script src="main.js"></script>
+</body>
+</html>
